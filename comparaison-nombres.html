@@ -1,0 +1,1071 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comparaison de Nombres</title>
+  <style>
+    :root {
+      --slate: #1e2a3a;
+      --paper: #f0f4ff;
+      --ink: #172033;
+      --muted: #64748b;
+      --indigo: #4f6ef7;
+      --indigo-dark: #3f57d9;
+      --success: #22c55e;
+      --error: #ef4444;
+      --amber: #f59e0b;
+      --line: #dbe3f4;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      width: 100%;
+      margin: 0;
+      min-height: 100%;
+      font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--ink);
+    }
+
+    button, select { font: inherit; }
+
+    button:focus-visible,
+    select:focus-visible,
+    [tabindex]:focus-visible {
+      outline: 3px solid rgba(79, 110, 247, 0.4);
+      outline-offset: 3px;
+    }
+
+    .display-font {
+      font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .app-shell {
+      width: 100%;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 8% 4%, rgba(79, 110, 247, 0.14), transparent 24rem),
+        linear-gradient(180deg, var(--slate) 0 18.5rem, var(--paper) 18.5rem 100%);
+    }
+
+    .main-width {
+      width: min(100% - 2rem, 800px);
+      margin-inline: auto;
+    }
+
+    .hero {
+      padding: 3rem 0 2.2rem;
+      color: white;
+    }
+
+    .hero-copy { max-width: 42rem; }
+
+    .hero-title {
+      margin: 0;
+      line-height: 0.98;
+      letter-spacing: -0.045em;
+      font-size: clamp(1.9rem, 5vw, 2.6rem);
+    }
+
+    .hero-subtitle {
+      max-width: 36rem;
+      margin: 1rem 0 0;
+      line-height: 1.65;
+    }
+
+    .new-button,
+    .secondary-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0.75rem 1rem;
+      border: 0;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+    }
+
+    .new-button {
+      margin-top: 1.4rem;
+      background: var(--indigo);
+      color: white;
+      box-shadow: 0 10px 24px rgba(9, 16, 31, 0.22);
+    }
+
+    .secondary-button {
+      background: white;
+      color: var(--indigo-dark);
+      border: 1px solid var(--line);
+    }
+
+    .new-button:hover,
+    .secondary-button:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.04);
+    }
+
+    .content { padding-bottom: 4rem; }
+
+    .settings-panel,
+    .score-panel {
+      background: white;
+      border: 1px solid rgba(219, 227, 244, 0.9);
+      border-radius: 20px;
+      box-shadow: 0 18px 44px rgba(30, 42, 58, 0.12);
+    }
+
+    .settings-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: -0.2rem;
+      padding: 1.2rem;
+    }
+
+    .field-group {
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .field-label { font-weight: 700; }
+
+    .field-help {
+      margin: 0;
+      line-height: 1.45;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .select-control {
+      width: 100%;
+      min-height: 44px;
+      padding: 0.65rem 2.4rem 0.65rem 0.8rem;
+      border: 1px solid #ccd6ee;
+      border-radius: 11px;
+      background: white;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .score-panel {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: 1.25rem;
+      margin-top: 1rem;
+      padding: 1.25rem;
+    }
+
+    .score-values {
+      display: grid;
+      gap: 0.25rem;
+      min-width: 185px;
+    }
+
+    .score-line {
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .score-line strong {
+      display: inline-block;
+      min-width: 3.5rem;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--indigo);
+    }
+
+    .score-label { margin: 0 0 0.45rem; font-weight: 700; }
+
+    .progress-track {
+      height: 11px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e5eaf6;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #4f6ef7, #7890ff);
+      transition: width 350ms cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .score-helper { margin: 0.5rem 0 0; font-size: 0.85rem; color: var(--muted); }
+
+    .strategy-panel {
+      background: white;
+      margin-top: 1.15rem;
+      padding: 1.15rem 1.25rem;
+      border-left: 4px solid var(--indigo);
+      border-radius: 0 14px 14px 0;
+      box-shadow: 0 10px 25px rgba(30, 42, 58, 0.08);
+    }
+
+    .strategy-title { margin: 0 0 0.35rem; font-size: 1.1rem; }
+    .strategy-text { margin: 0; line-height: 1.6; }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 2.25rem 0 1rem;
+    }
+
+    .section-title {
+      flex: none;
+      margin: 0;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-size: 0.95rem;
+      color: var(--slate);
+    }
+
+    .section-line {
+      width: 100%;
+      height: 1px;
+      background: #cdd7eb;
+    }
+
+    .exercise-list {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .exercise-card {
+      position: relative;
+      overflow: hidden;
+      background: white;
+      padding: 1.3rem;
+      border: 2px solid transparent;
+      border-radius: 18px;
+      box-shadow: 0 8px 25px rgba(40, 54, 82, 0.08);
+      animation: fadeUp 480ms both;
+      transition: border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .exercise-card:focus-within {
+      box-shadow: 0 12px 34px rgba(79, 110, 247, 0.14);
+    }
+
+    .exercise-card.is-correct { border-color: var(--success); }
+    .exercise-card.is-corrected { border-color: var(--amber); }
+    .exercise-card.is-shaking { animation: shake 340ms ease; }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .exercise-meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+    }
+
+    .exercise-index {
+      margin: 0;
+      font-size: 0.83rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .skill-tag {
+      padding: 0.25rem 0.5rem;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #4054b8;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .attempt-dots { display: flex; gap: 0.42rem; }
+
+    .attempt-dot {
+      width: 11px;
+      height: 11px;
+      border: 2px solid #c7d0e3;
+      border-radius: 50%;
+      background: white;
+    }
+
+    .attempt-dot.is-error {
+      border-color: var(--error);
+      background: var(--error);
+    }
+
+    .attempt-dot.is-success {
+      border-color: var(--success);
+      background: var(--success);
+      transform: scale(1.2);
+    }
+
+    .attempt-dot.is-hidden { display: none; }
+
+    .comparison-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .number-value {
+      font-family: "Courier New", monospace;
+      font-size: clamp(1.12rem, 4.2vw, 1.58rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: 0.04em;
+      color: #192238;
+      text-align: center;
+      overflow-wrap: anywhere;
+      font-variant-numeric: tabular-nums;
+      word-spacing: 0.25em;
+    }
+
+    .answer-zone {
+      display: flex;
+      gap: 0.38rem;
+      padding: 0.35rem;
+      border-radius: 13px;
+      background: #eef2ff;
+    }
+
+    .symbol-button {
+      width: 42px;
+      height: 42px;
+      border: 1px solid #d4dcf3;
+      border-radius: 10px;
+      background: white;
+      color: #34405a;
+      font-size: 1.25rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 150ms ease, color 150ms ease, background 150ms ease;
+    }
+
+    .symbol-button:hover:not(:disabled) {
+      color: var(--indigo);
+      transform: translateY(-1px);
+    }
+
+    .symbol-button.is-selected {
+      border-color: var(--indigo);
+      background: var(--indigo) !important;
+      color: white !important;
+      box-shadow: 0 5px 13px rgba(79, 110, 247, 0.25);
+    }
+
+    .symbol-button:disabled {
+      cursor: default;
+      opacity: 0.72;
+    }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: 1.1rem;
+    }
+
+    .feedback-slot {
+      min-height: 1.5rem;
+      flex: 1;
+    }
+
+    .feedback {
+      display: none;
+      margin: 0;
+      font-size: 0.9rem;
+      font-weight: 650;
+    }
+
+    .feedback.is-visible { display: block; }
+
+    .select-symbol-message { color: var(--muted); }
+    .wrong-message { color: var(--error); }
+    .success-message { color: var(--success); }
+    .test-recorded-message { color: var(--indigo-dark); }
+
+    .validate-button {
+      flex: none;
+      min-height: 42px;
+      padding: 0.65rem 1rem;
+      border: 0;
+      border-radius: 11px;
+      background: var(--indigo);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .validate-button:disabled {
+      cursor: default;
+      opacity: 0.5;
+    }
+
+    .correction {
+      display: none;
+      margin-top: 0.9rem;
+      padding: 0.85rem;
+      border-radius: 10px;
+      background: #fff7e7;
+      color: #8a5200;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    .correction.is-visible { display: block; }
+
+    .correction-value {
+      display: block;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .correction-explanation {
+      display: block;
+      margin-top: 0.35rem;
+    }
+
+    .completion-message,
+    .test-results-panel {
+      display: none;
+      margin-top: 1.2rem;
+      padding: 1.1rem 1.2rem;
+      border-radius: 15px;
+      text-align: center;
+      background: #f0fdf4;
+      color: #15803d;
+      font-weight: 700;
+      box-shadow: 0 10px 25px rgba(34, 197, 94, 0.12);
+      animation: pop 400ms ease;
+    }
+
+    .test-results-panel { background: white; color: var(--ink); }
+
+    .completion-message.is-visible,
+    .test-results-panel.is-visible {
+      display: block;
+    }
+
+    .test-result-value {
+      margin: 0.35rem 0 0;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--indigo);
+    }
+
+    .end-actions {
+      display: none;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+
+    .end-actions.is-visible { display: grid; }
+    .review-button.is-hidden { display: none; }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-7px); }
+      50% { transform: translateX(6px); }
+      75% { transform: translateX(-3px); }
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.94); }
+      65% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+
+    @media (max-width: 620px) {
+      .app-shell {
+        background:
+          radial-gradient(circle at 12% 3%, rgba(79, 110, 247, 0.16), transparent 18rem),
+          linear-gradient(180deg, var(--slate) 0 22rem, var(--paper) 22rem 100%);
+      }
+
+      .hero { padding-top: 2.35rem; }
+      .settings-panel, .score-panel { grid-template-columns: 1fr; }
+      .exercise-card { padding: 1.05rem; }
+      .comparison-row { grid-template-columns: 1fr; }
+      .answer-zone { justify-self: center; }
+      .card-actions { align-items: stretch; flex-direction: column; }
+      .validate-button { width: 100%; }
+      .end-actions { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 1ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="hero">
+      <div class="main-width">
+        <div class="hero-copy">
+          <h1 class="display-font hero-title">Comparaison de grands nombres</h1>
+          <p class="hero-subtitle">Entraîne-toi à comparer des nombres en choisissant le bon symbole : plus petit, égal ou plus grand.</p>
+          <button id="new-exercises-button" class="new-button" type="button">Nouveaux exercices</button>
+        </div>
+      </div>
+    </header>
+    <main class="main-width content">
+      <section class="settings-panel" aria-labelledby="settings-title">
+        <h2 id="settings-title" class="sr-only">Paramètres de l'exercice</h2>
+        <div class="field-group">
+          <label class="field-label" for="mode-select">Mode</label>
+          <select id="mode-select" class="select-control">
+            <option value="training">Entraînement (avec correction)</option>
+            <option value="test">Test (sans correction)</option>
+          </select>
+          <p class="field-help">En entraînement, tu as 3 essais et une explication en cas d'erreur. En test, une seule tentative est enregistrée.</p>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="level-select">Niveau</label>
+          <select id="level-select" class="select-control">
+            <option value="all">Tous les niveaux</option>
+            <option value="1">Niveau 1 — Nombre de chiffres</option>
+            <option value="2">Niveau 2 — Comparer de gauche à droite</option>
+            <option value="3">Niveau 3 — Différence tardive</option>
+          </select>
+          <p class="field-help">Choisis un niveau pour cibler une difficulté précise, ou garde « Tous les niveaux » pour un mélange.</p>
+        </div>
+      </section>
+      <section class="score-panel" aria-labelledby="score-caption">
+        <div class="score-values" aria-live="polite">
+          <div class="score-line">
+            <strong id="immediate-score">0 / 10</strong> <span>réussites du premier coup</span>
+          </div>
+          <div class="score-line">
+            <strong id="resolved-score">0 / 10</strong> <span>exercices résolus</span>
+          </div>
+        </div>
+        <div>
+          <p id="score-caption" class="score-label">Progression</p>
+          <div id="progress-track" class="progress-track" role="progressbar" aria-label="Progression des exercices résolus" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0">
+            <div id="progress-fill" class="progress-fill"></div>
+          </div>
+          <p class="score-helper">La barre se remplit au fur et à mesure que tu résous les exercices.</p>
+        </div>
+      </section>
+      <aside class="strategy-panel" aria-labelledby="strategy-title">
+        <h2 id="strategy-title" class="display-font strategy-title">Stratégie de comparaison</h2>
+        <p class="strategy-text">Pour des nombres naturels, compare d'abord le nombre de chiffres : le nombre avec le plus de chiffres est toujours le plus grand. S'ils ont le même nombre de chiffres, compare les chiffres un à un de gauche à droite jusqu'à trouver une différence.</p>
+      </aside>
+      <section aria-labelledby="comparison-section-title">
+        <div class="section-heading">
+          <h2 id="comparison-section-title" class="display-font section-title">Exercices</h2>
+          <div class="section-line" aria-hidden="true"></div>
+        </div>
+        <div id="exercise-list" class="exercise-list"></div>
+        <p id="completion-message" class="completion-message" role="status">Bravo, tu as terminé la série !</p>
+        <section id="test-results-panel" class="test-results-panel" aria-labelledby="test-results-title">
+          <h2 id="test-results-title" class="display-font">Résultat du test</h2>
+          <p id="test-result-value" class="test-result-value" aria-live="polite"></p>
+        </section>
+        <div id="end-actions" class="end-actions">
+          <button id="review-errors-button" class="secondary-button review-button" type="button">Revoir les exercices manqués</button>
+          <button id="restart-button" class="secondary-button" type="button">Recommencer une série</button>
+        </div>
+      </section>
+    </main>
+    <div id="live-region" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+  </div>
+  <template id="exercise-card-template">
+    <article class="exercise-card">
+      <div class="card-top">
+        <div class="exercise-meta">
+          <p class="exercise-index"></p>
+        </div>
+        <div class="attempt-dots" aria-label="Essais disponibles"><span class="attempt-dot" aria-hidden="true"></span> <span class="attempt-dot" aria-hidden="true"></span> <span class="attempt-dot" aria-hidden="true"></span>
+        </div>
+      </div>
+      <div class="comparison-row"><span class="number-value left-number"></span>
+        <div class="answer-zone" role="group" aria-label="Choisir le symbole de comparaison">
+          <button class="symbol-button" type="button" data-value="&lt;" aria-pressed="false">&lt;</button>
+          <button class="symbol-button" type="button" data-value="=" aria-pressed="false">=</button>
+          <button class="symbol-button" type="button" data-value="&gt;" aria-pressed="false">&gt;</button>
+        </div><span class="number-value right-number"></span>
+      </div>
+      <div class="card-actions">
+        <div class="feedback-slot" aria-live="polite">
+          <p class="feedback select-symbol-message">Choisis d'abord un symbole.</p>
+          <p class="feedback wrong-message">Ce n'est pas la bonne réponse, réessaie.</p>
+          <p class="feedback success-message">Bonne réponse !</p>
+          <p class="feedback test-recorded-message">Réponse enregistrée.</p>
+        </div><button class="validate-button" type="button">Valider</button>
+      </div>
+      <div class="correction"><span>Correction :</span> <span class="correction-value"></span> <span class="correction-explanation"></span>
+      </div>
+    </article>
+  </template>
+  <script>
+    const exerciseBank = [
+      { left: "679521", right: "1679520", level: 1, skill: "Nombre de chiffres" },
+      { left: "45090", right: "450901", level: 1, skill: "Nombre de chiffres" },
+      { left: "8765432", right: "987654", level: 1, skill: "Nombre de chiffres" },
+      { left: "999999", right: "1000000", level: 1, skill: "Nombre de chiffres" },
+      { left: "120304", right: "90122", level: 1, skill: "Nombre de chiffres" },
+      { left: "7458123", right: "745812", level: 1, skill: "Nombre de chiffres" },
+      { left: "800800", right: "80080", level: 1, skill: "Nombre de chiffres" },
+      { left: "6402050", right: "640205", level: 1, skill: "Nombre de chiffres" },
+      { left: "311450", right: "10311450", level: 1, skill: "Nombre de chiffres" },
+      { left: "75206", right: "175206", level: 1, skill: "Nombre de chiffres" },
+
+      { left: "23650114", right: "32650114", level: 2, skill: "Comparer de gauche à droite" },
+      { left: "41876002", right: "14876002", level: 2, skill: "Comparer de gauche à droite" },
+      { left: "71340590", right: "61340590", level: 2, skill: "Comparer de gauche à droite" },
+      { left: "44211890", right: "44291890", level: 2, skill: "Comparer de gauche à droite" },
+      { left: "76500401", right: "67500401", level: 2, skill: "Comparer de gauche à droite" },
+      { left: "63899002", right: "63819002", level: 2, skill: "Comparer de gauche à droite" },
+      { left: "31415926", right: "34115926", level: 2, skill: "Comparer de gauche à droite" },
+      { left: "89965145", right: "89965145", level: 2, skill: "Égalité" },
+      { left: "7003002", right: "7003002", level: 2, skill: "Égalité" },
+      { left: "12004567", right: "12004567", level: 2, skill: "Égalité" },
+
+      { left: "5020301", right: "5020311", level: 3, skill: "Différence tardive" },
+      { left: "87654321", right: "87654320", level: 3, skill: "Différence tardive" },
+      { left: "41020009", right: "41020019", level: 3, skill: "Différence tardive" },
+      { left: "73004051", right: "73004015", level: 3, skill: "Différence tardive" },
+      { left: "99000108", right: "99000109", level: 3, skill: "Différence tardive" },
+      { left: "62014570", right: "62014507", level: 3, skill: "Différence tardive" },
+      { left: "14876329", right: "14876328", level: 3, skill: "Différence tardive" },
+      { left: "30000001", right: "30000010", level: 3, skill: "Différence tardive" },
+      { left: "42000199", right: "42000200", level: 3, skill: "Passage de rang" },
+      { left: "99999998", right: "99999989", level: 3, skill: "Différence tardive" }
+    ];
+
+    const session = {
+      exercises: [],
+      immediateCount: 0,
+      resolvedCount: 0,
+      correctTotal: 0,
+      activeCard: null,
+      mode: "training",
+      reviewSource: []
+    };
+
+    const listElement = document.getElementById("exercise-list");
+    const immediateScore = document.getElementById("immediate-score");
+    const resolvedScore = document.getElementById("resolved-score");
+    const progressTrack = document.getElementById("progress-track");
+    const progressFill = document.getElementById("progress-fill");
+    const completionMessage = document.getElementById("completion-message");
+    const testResultsPanel = document.getElementById("test-results-panel");
+    const testResultValue = document.getElementById("test-result-value");
+    const endActions = document.getElementById("end-actions");
+    const reviewButton = document.getElementById("review-errors-button");
+    const liveRegion = document.getElementById("live-region");
+    const modeSelect = document.getElementById("mode-select");
+    const levelSelect = document.getElementById("level-select");
+
+    function compareValues(left, right) {
+      const leftValue = BigInt(left);
+      const rightValue = BigInt(right);
+      if (leftValue < rightValue) return "<";
+      if (leftValue > rightValue) return ">";
+      return "=";
+    }
+
+    function formatNumber(value) {
+      return BigInt(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    }
+
+    function explainComparison(left, right) {
+      const a = BigInt(left).toString();
+      const b = BigInt(right).toString();
+
+      if (a.length !== b.length) {
+        return "Le nombre qui possède le plus de chiffres est le plus grand.";
+      }
+
+      for (let index = 0; index < a.length; index += 1) {
+        if (a[index] !== b[index]) {
+          return `On compare de gauche à droite : la première différence apparaît au chiffre ${index + 1}.`;
+        }
+      }
+
+      return "Les deux nombres sont identiques.";
+    }
+
+    function shuffle(items) {
+      const copy = [...items];
+      for (let index = copy.length - 1; index > 0; index -= 1) {
+        const randomIndex = Math.floor(Math.random() * (index + 1));
+        [copy[index], copy[randomIndex]] = [copy[randomIndex], copy[index]];
+      }
+      return copy;
+    }
+
+    function toSessionExercise(source, index) {
+      return {
+        ...source,
+        id: `exercise-${Date.now()}-${index}`,
+        answer: compareValues(source.left, source.right),
+        selected: null,
+        attempts: 0,
+        resolved: false,
+        correct: false,
+        immediate: false
+      };
+    }
+
+    function selectRandomExercises(count, level) {
+      const pool = level === "all"
+        ? exerciseBank
+        : exerciseBank.filter((exercise) => exercise.level === Number(level));
+
+      return shuffle(pool).slice(0, count).map(toSessionExercise);
+    }
+
+    function setFeedback(card, feedbackClass) {
+      card.querySelectorAll(".feedback").forEach((element) => {
+        element.classList.toggle("is-visible", element.classList.contains(feedbackClass));
+      });
+    }
+
+    function clearFeedback(card) {
+      card.querySelectorAll(".feedback").forEach((element) => {
+        element.classList.remove("is-visible");
+      });
+    }
+
+    function announce(message) {
+      liveRegion.textContent = "";
+      window.setTimeout(() => {
+        liveRegion.textContent = message;
+      }, 30);
+    }
+
+    function updateScore() {
+      const total = session.exercises.length || 10;
+      immediateScore.textContent = `${session.immediateCount} / ${total}`;
+      resolvedScore.textContent = `${session.resolvedCount} / ${total}`;
+
+      const percentage = total ? (session.resolvedCount / total) * 100 : 0;
+      progressFill.style.width = `${percentage}%`;
+      progressTrack.setAttribute("aria-valuemax", String(total));
+      progressTrack.setAttribute("aria-valuenow", String(session.resolvedCount));
+
+      const complete = session.resolvedCount === total;
+      completionMessage.classList.toggle("is-visible", complete);
+      endActions.classList.toggle("is-visible", complete);
+
+      if (!complete) {
+        testResultsPanel.classList.remove("is-visible");
+        return;
+      }
+
+      session.reviewSource = session.exercises.filter((exercise) => !exercise.immediate);
+      reviewButton.classList.toggle("is-hidden", session.reviewSource.length === 0);
+
+      if (session.mode === "test") {
+        testResultValue.textContent = `${session.correctTotal} / ${total}`;
+        testResultsPanel.classList.add("is-visible");
+      } else {
+        testResultsPanel.classList.remove("is-visible");
+      }
+    }
+
+    function disableCard(card) {
+      card.querySelectorAll(".symbol-button").forEach((button) => {
+        button.disabled = true;
+      });
+      card.querySelector(".validate-button").disabled = true;
+    }
+
+    function showCorrection(card, exercise) {
+      const correction = card.querySelector(".correction");
+      correction.querySelector(".correction-value").textContent =
+        `${formatNumber(exercise.left)} ${exercise.answer} ${formatNumber(exercise.right)}`;
+      correction.querySelector(".correction-explanation").textContent =
+        explainComparison(exercise.left, exercise.right);
+      correction.classList.add("is-visible");
+    }
+
+    function resolveTrainingCard(card, exercise, wasCorrect) {
+      exercise.resolved = true;
+      exercise.correct = wasCorrect;
+      exercise.immediate = wasCorrect && exercise.attempts === 1;
+      session.resolvedCount += 1;
+
+      if (exercise.immediate) session.immediateCount += 1;
+      if (wasCorrect) session.correctTotal += 1;
+
+      disableCard(card);
+
+      if (wasCorrect) {
+        card.classList.add("is-correct");
+        setFeedback(card, "success-message");
+        announce("Bonne réponse.");
+      } else {
+        card.classList.add("is-corrected");
+        clearFeedback(card);
+        showCorrection(card, exercise);
+        announce("La correction et l'explication sont affichées.");
+      }
+
+      updateScore();
+    }
+
+    function resolveTestCard(card, exercise) {
+      exercise.resolved = true;
+      exercise.correct = exercise.selected === exercise.answer;
+      exercise.immediate = exercise.correct;
+      session.resolvedCount += 1;
+
+      if (exercise.correct) {
+        session.immediateCount += 1;
+        session.correctTotal += 1;
+      }
+
+      disableCard(card);
+      setFeedback(card, "test-recorded-message");
+      announce("Réponse enregistrée.");
+      updateScore();
+    }
+
+    function validateExercise(card, exercise) {
+      if (exercise.resolved) return;
+
+      session.activeCard = card;
+
+      if (!exercise.selected) {
+        setFeedback(card, "select-symbol-message");
+        announce("Choisis d'abord un symbole.");
+        return;
+      }
+
+      exercise.attempts += 1;
+      const currentDot = card.querySelectorAll(".attempt-dot")[exercise.attempts - 1];
+
+      if (session.mode === "test") {
+        // Le point d'essai reflète désormais la justesse réelle de la réponse
+        // (avant : toujours colorié en vert, même en cas d'erreur).
+        currentDot.classList.add(exercise.selected === exercise.answer ? "is-success" : "is-error");
+        resolveTestCard(card, exercise);
+        return;
+      }
+
+      if (exercise.selected === exercise.answer) {
+        currentDot.classList.add("is-success");
+        resolveTrainingCard(card, exercise, true);
+        return;
+      }
+
+      currentDot.classList.add("is-error");
+      card.classList.remove("is-shaking");
+      void card.offsetWidth;
+      card.classList.add("is-shaking");
+
+      if (exercise.attempts >= 3) {
+        resolveTrainingCard(card, exercise, false);
+      } else {
+        setFeedback(card, "wrong-message");
+        const remaining = 3 - exercise.attempts;
+        announce(`Réponse incorrecte. Il reste ${remaining} essai${remaining > 1 ? "s" : ""}.`);
+      }
+    }
+
+    function chooseSymbol(card, exercise, selectedButton) {
+      if (exercise.resolved) return;
+
+      session.activeCard = card;
+      exercise.selected = selectedButton.dataset.value;
+      clearFeedback(card);
+
+      card.querySelectorAll(".symbol-button").forEach((button) => {
+        const selected = button === selectedButton;
+        button.classList.toggle("is-selected", selected);
+        button.setAttribute("aria-pressed", String(selected));
+      });
+    }
+
+    function handleSymbolKeys(event, card, exercise, buttons) {
+      if (exercise.resolved || !["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+
+      event.preventDefault();
+      const currentIndex = Math.max(0, buttons.indexOf(document.activeElement));
+      const direction = event.key === "ArrowRight" ? 1 : -1;
+      const nextIndex = (currentIndex + direction + buttons.length) % buttons.length;
+      buttons[nextIndex].focus();
+      chooseSymbol(card, exercise, buttons[nextIndex]);
+    }
+
+    function createExerciseCard(exercise, index) {
+      const template = document.getElementById("exercise-card-template");
+      const fragment = template.content.cloneNode(true);
+      const card = fragment.querySelector(".exercise-card");
+
+      card.dataset.exerciseId = exercise.id;
+      card.style.animationDelay = `${index * 55}ms`;
+      card.querySelector(".exercise-index").textContent = `Exercice ${index + 1}`;
+      card.querySelector(".left-number").textContent = formatNumber(exercise.left);
+      card.querySelector(".right-number").textContent = formatNumber(exercise.right);
+
+      if (session.mode === "test") {
+        const dots = card.querySelectorAll(".attempt-dot");
+        dots[1].classList.add("is-hidden");
+        dots[2].classList.add("is-hidden");
+      }
+
+      const symbolButtons = [...card.querySelectorAll(".symbol-button")];
+      symbolButtons.forEach((button) => {
+        button.addEventListener("click", () => chooseSymbol(card, exercise, button));
+        button.addEventListener("keydown", (event) => {
+          handleSymbolKeys(event, card, exercise, symbolButtons);
+        });
+      });
+
+      card.querySelector(".validate-button").addEventListener("click", () => {
+        validateExercise(card, exercise);
+      });
+
+      card.addEventListener("focusin", () => {
+        session.activeCard = card;
+      });
+
+      return fragment;
+    }
+
+    function renderExercises(exercises) {
+      session.exercises = exercises;
+      session.immediateCount = 0;
+      session.resolvedCount = 0;
+      session.correctTotal = 0;
+      session.activeCard = null;
+
+      listElement.replaceChildren();
+      const fragment = document.createDocumentFragment();
+
+      session.exercises.forEach((exercise, index) => {
+        fragment.appendChild(createExerciseCard(exercise, index));
+      });
+
+      listElement.appendChild(fragment);
+      completionMessage.classList.remove("is-visible");
+      testResultsPanel.classList.remove("is-visible");
+      endActions.classList.remove("is-visible");
+      updateScore();
+
+      window.setTimeout(() => {
+        const firstButton = listElement.querySelector(".symbol-button");
+        if (firstButton) firstButton.focus();
+      }, 80);
+    }
+
+    function regenerateExercises() {
+      session.mode = modeSelect.value;
+      const exercises = selectRandomExercises(10, levelSelect.value);
+      renderExercises(exercises);
+    }
+
+    function reviewErrors() {
+      if (!session.reviewSource.length) return;
+
+      session.mode = "training";
+      modeSelect.value = "training";
+      const reviewExercises = shuffle(session.reviewSource).map((exercise, index) =>
+        toSessionExercise({
+          left: exercise.left,
+          right: exercise.right,
+          level: exercise.level,
+          skill: exercise.skill
+        }, index)
+      );
+
+      renderExercises(reviewExercises);
+      announce("La série de révision des erreurs est prête.");
+    }
+
+    function getExerciseForCard(card) {
+      return session.exercises.find((exercise) => exercise.id === card.dataset.exerciseId);
+    }
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" || event.repeat) return;
+      if (event.target.matches("button, select")) return;
+
+      let card = event.target.closest ? event.target.closest(".exercise-card") : null;
+
+      if (!card || getExerciseForCard(card)?.resolved) {
+        card = session.activeCard && !getExerciseForCard(session.activeCard)?.resolved
+          ? session.activeCard
+          : [...listElement.querySelectorAll(".exercise-card")].find((candidate) => {
+              const exercise = getExerciseForCard(candidate);
+              return exercise && !exercise.resolved;
+            });
+      }
+
+      if (!card) return;
+      event.preventDefault();
+
+      const exercise = getExerciseForCard(card);
+      if (exercise) validateExercise(card, exercise);
+    });
+
+    document.getElementById("new-exercises-button").addEventListener("click", () => {
+      regenerateExercises();
+      announce("Dix nouveaux exercices ont été générés.");
+    });
+
+    document.getElementById("restart-button").addEventListener("click", () => {
+      regenerateExercises();
+      announce("Une nouvelle série a commencé.");
+    });
+
+    reviewButton.addEventListener("click", reviewErrors);
+
+    modeSelect.addEventListener("change", () => {
+      regenerateExercises();
+      announce("Le mode a été modifié et une nouvelle série a commencé.");
+    });
+
+    levelSelect.addEventListener("change", () => {
+      regenerateExercises();
+      announce("Le niveau a été modifié et une nouvelle série a commencé.");
+    });
+
+    regenerateExercises();
+  </script>
+</body>
+</html>

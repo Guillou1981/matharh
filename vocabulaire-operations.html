@@ -1,0 +1,1185 @@
+<!doctype html>
+<html lang="fr">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vocabulaire des quatre opérations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Syne:wght@700;800&amp;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --slate: #1e2a3a;
+      --surface: #f0f4ff;
+      --indigo: #4f6ef7;
+      --green: #22c55e;
+      --red: #ef4444;
+      --amber: #f59e0b;
+      --ink: #172033;
+      --muted: #64748b;
+      --line: #dbe3f4;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      font-family: "Inter", sans-serif;
+      color: var(--ink);
+    }
+
+    h1, h2, h3 {
+      font-family: "Syne", sans-serif;
+    }
+
+    button, input, select {
+      font: inherit;
+    }
+
+    .app-shell {
+      width: 100%;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(79, 110, 247, .23), transparent 28rem),
+        radial-gradient(circle at 90% 16%, rgba(34, 197, 94, .11), transparent 24rem),
+        var(--slate);
+    }
+
+    .paper-zone {
+      background:
+        linear-gradient(rgba(79, 110, 247, .035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79, 110, 247, .035) 1px, transparent 1px),
+        var(--surface);
+      background-size: 28px 28px;
+    }
+
+    .display-title {
+      font-family: "Syne", sans-serif;
+      letter-spacing: -.045em;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+
+    .section-heading::after {
+      content: "";
+      height: 1px;
+      flex: 1;
+      background: linear-gradient(90deg, #cbd5e1, transparent);
+    }
+
+    .exercise-card {
+      position: relative;
+      overflow: hidden;
+      border: 2px solid transparent;
+      box-shadow: 0 12px 32px rgba(30, 42, 58, .08);
+      transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+      animation: fadeUp .45s both;
+    }
+
+    .exercise-card:hover {
+      box-shadow: 0 16px 38px rgba(30, 42, 58, .12);
+    }
+
+    .exercise-card.is-correct {
+      border-color: var(--green);
+    }
+
+    .exercise-card.is-revealed {
+      border-color: var(--amber);
+    }
+
+    .exercise-card.is-correct::before,
+    .exercise-card.is-revealed::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 5px;
+      background: var(--green);
+    }
+
+    .exercise-card.is-revealed::before {
+      background: var(--amber);
+    }
+
+    .answer-control {
+      width: 100%;
+      min-height: 48px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 12px;
+      background: #fff;
+      padding: 11px 13px;
+      color: var(--ink);
+      transition: border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .answer-control:focus {
+      outline: none;
+      border-color: var(--indigo);
+      box-shadow: 0 0 0 4px rgba(79, 110, 247, .15);
+    }
+
+    .answer-control:disabled {
+      background: #f8fafc;
+      color: #64748b;
+      cursor: not-allowed;
+    }
+
+    .submit-button {
+      min-height: 48px;
+      border-radius: 12px;
+      padding: 11px 18px;
+      font-weight: 700;
+      transition: transform .18s ease, filter .18s ease, opacity .18s ease;
+    }
+
+    .submit-button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+    }
+
+    .submit-button:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .submit-button:disabled {
+      opacity: .52;
+      cursor: not-allowed;
+    }
+
+    .attempt-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      border: 1.5px solid #94a3b8;
+      background: #fff;
+      transition: transform .2s ease, background .2s ease;
+    }
+
+    .attempt-dot.wrong {
+      border-color: var(--red);
+      background: var(--red);
+      transform: scale(1.08);
+    }
+
+    .attempt-dot.success {
+      border-color: var(--green);
+      background: var(--green);
+      transform: scale(1.22);
+    }
+
+    .feedback-box {
+      border-radius: 12px;
+      padding: 12px 14px;
+      line-height: 1.55;
+    }
+
+    .feedback-error {
+      color: #991b1b;
+      background: #fef2f2;
+      border-left: 4px solid var(--red);
+    }
+
+    .feedback-success {
+      color: #166534;
+      background: #f0fdf4;
+      border-left: 4px solid var(--green);
+    }
+
+    .feedback-correction {
+      color: #92400e;
+      background: #fffbeb;
+      border-left: 4px solid var(--amber);
+    }
+
+    .progress-fill {
+      width: 0%;
+      transition: width .35s ease;
+      background: linear-gradient(90deg, var(--indigo), #6d8aff);
+    }
+
+    .shake { animation: shake .38s ease; }
+    .pop { animation: pop .42s ease; }
+
+    .focus-ring:focus-visible,
+    button:focus-visible {
+      outline: 3px solid rgba(99, 130, 246, .55);
+      outline-offset: 3px;
+    }
+
+    /* --- Styles de remplacement pour les classes de la plateforme d'origine --- */
+    .canva-header { background: transparent; }
+    .canva-header .canva-text { color: #eef2ff; }
+    .canva-footer { background: transparent; }
+    .canva-footer .canva-text { color: #94a3b8; }
+    .canva-panel { background: #ffffff; }
+    .canva-card { background: #ffffff; }
+    .canva-button {
+      background: var(--indigo);
+      color: #ffffff;
+      border: none;
+      cursor: pointer;
+    }
+    .canva-banner { background: #f0fdf4; color: #166534; }
+    .canva-input { /* déjà pris en charge par .answer-control */ }
+
+    /* --- Classes utilitaires (remplacent Tailwind CDN, sans dépendance externe) --- */
+    .block { display: block; }
+    .flex { display: flex; }
+    .grid { display: grid; }
+    .hidden { display: none; }
+    .flex-1 { flex: 1 1 0%; }
+    .flex-col { flex-direction: column; }
+    .items-start { align-items: flex-start; }
+    .justify-between { justify-content: space-between; }
+    .shrink-0 { flex-shrink: 0; }
+    .min-w-0 { min-width: 0; }
+    .w-full { width: 100%; }
+    .max-w-2xl { max-width: 42rem; }
+    .max-w-xl { max-width: 36rem; }
+    .max-w-\[760px\] { max-width: 760px; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .mt-1 { margin-top: .25rem; }
+    .mt-4 { margin-top: 1rem; }
+    .mt-5 { margin-top: 1.25rem; }
+    .mt-10 { margin-top: 2.5rem; }
+    .mb-2 { margin-bottom: .5rem; }
+    .mb-5 { margin-bottom: 1.25rem; }
+    .mb-8 { margin-bottom: 2rem; }
+    .mb-10 { margin-bottom: 2.5rem; }
+    .mb-12 { margin-bottom: 3rem; }
+    .p-3 { padding: .75rem; }
+    .p-5 { padding: 1.25rem; }
+    .p-6 { padding: 1.5rem; }
+    .px-4 { padding-left: 1rem; padding-right: 1rem; }
+    .px-5 { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .py-3 { padding-top: .75rem; padding-bottom: .75rem; }
+    .py-7 { padding-top: 1.75rem; padding-bottom: 1.75rem; }
+    .py-8 { padding-top: 2rem; padding-bottom: 2rem; }
+    .py-10 { padding-top: 2.5rem; padding-bottom: 2.5rem; }
+    .pt-1 { padding-top: .25rem; }
+    .gap-1\.5 { gap: .375rem; }
+    .gap-3 { gap: .75rem; }
+    .gap-4 { gap: 1rem; }
+    .gap-7 { gap: 1.75rem; }
+    .space-y-4 > * + * { margin-top: 1rem; }
+    .h-3 { height: .75rem; }
+    .h-full { height: 100%; }
+    .overflow-hidden { overflow: hidden; }
+    .rounded-xl { border-radius: .75rem; }
+    .rounded-2xl { border-radius: 1rem; }
+    .rounded-full { border-radius: 9999px; }
+    .border { border-width: 1px; border-style: solid; border-color: #e5e7eb; }
+    .border-2 { border-width: 2px; border-style: solid; }
+    .border-green-400 { border-color: #4ade80; }
+    .border-indigo-100 { border-color: #e0e7ff; }
+    .bg-slate-200 { background-color: #e2e8f0; }
+    .bg-white\/75 { background-color: rgba(255, 255, 255, .75); }
+    .shadow-sm { box-shadow: 0 1px 2px 0 rgb(0 0 0 / .05); }
+    .shadow-lg { box-shadow: 0 10px 15px -3px rgb(0 0 0 / .1), 0 4px 6px -4px rgb(0 0 0 / .1); }
+    .font-sans { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+    .font-semibold { font-weight: 600; }
+    .font-bold { font-weight: 700; }
+    .uppercase { text-transform: uppercase; }
+    .text-center { text-align: center; }
+    .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+    .text-indigo-600 { color: #4f46e5; }
+    .text-indigo-700 { color: #4338ca; }
+    .leading-relaxed { line-height: 1.625; }
+    .leading-\[1\.03\] { line-height: 1.03; }
+    .tracking-\[0\.15em\] { letter-spacing: .15em; }
+    .whitespace-pre-line { white-space: pre-line; }
+    .transition {
+      transition-property: color, background-color, border-color, box-shadow, transform, filter, opacity;
+      transition-timing-function: cubic-bezier(.4, 0, .2, 1);
+      transition-duration: 150ms;
+    }
+    .hover\:-translate-y-0\.5:hover { transform: translateY(-.125rem); }
+
+    @media (min-width: 640px) {
+      .sm\:flex-row { flex-direction: row; }
+      .sm\:items-end { align-items: flex-end; }
+      .sm\:justify-between { justify-content: space-between; }
+      .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .sm\:w-auto { width: auto; }
+      .sm\:p-6 { padding: 1.5rem; }
+      .sm\:px-7 { padding-left: 1.75rem; padding-right: 1.75rem; }
+      .sm\:px-8 { padding-left: 2rem; padding-right: 2rem; }
+      .sm\:py-10 { padding-top: 2.5rem; padding-bottom: 2.5rem; }
+      .sm\:py-14 { padding-top: 3.5rem; padding-bottom: 3.5rem; }
+      .sm\:text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-3px); }
+    }
+
+    @keyframes pop {
+      0% { transform: scale(1); }
+      45% { transform: scale(1.018); }
+      100% { transform: scale(1); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+ </head>
+ <body>
+  <div class="app-shell">
+   <header class="canva-header w-full px-5 py-10 sm:px-8 sm:py-14">
+    <div class="mx-auto max-w-[760px]">
+     <div class="flex flex-col gap-7 sm:flex-row sm:items-end sm:justify-between">
+      <div class="max-w-2xl">
+       <h1 class="canva-text display-title leading-[1.03] text-3xl sm:text-4xl">Vocabulaire des quatre opérations</h1>
+       <p class="canva-text mt-4 max-w-xl leading-relaxed">Entraîne-toi à reconnaître et à utiliser les mots qui décrivent l'addition, la soustraction, la multiplication et la division : termes, somme, différence, facteurs, produit, dividende, diviseur et quotient.</p>
+      </div><button id="new-exercises-button" type="button" class="canva-button focus-ring shrink-0 rounded-xl px-5 py-3 font-bold shadow-lg transition hover:-translate-y-0.5">Nouveaux exercices</button>
+     </div>
+    </div>
+   </header>
+   <main class="paper-zone w-full px-4 py-8 sm:px-7 sm:py-10">
+    <div class="mx-auto max-w-[760px]">
+     <section class="canva-panel mb-8 rounded-2xl p-5 shadow-sm sm:p-6" aria-labelledby="progress-heading">
+      <div class="flex items-start justify-between gap-4">
+       <div>
+        <h2 id="progress-heading" class="canva-text font-bold">Ta progression</h2>
+        <p class="canva-text mt-1 leading-relaxed">Chaque bonne réponse fait avancer la barre ci-dessous.</p>
+       </div><output id="score-counter" class="shrink-0 font-bold text-indigo-700" aria-live="polite">0 / 30</output>
+      </div>
+      <div class="mt-4 h-3 overflow-hidden rounded-full bg-slate-200" role="progressbar" aria-label="Progression des réponses correctes" aria-valuemin="0" aria-valuemax="30" aria-valuenow="0" id="progress-track">
+       <div id="progress-fill" class="progress-fill h-full rounded-full"></div>
+      </div>
+     </section>
+     <aside class="canva-panel mb-10 rounded-2xl border border-indigo-100 p-5 shadow-sm sm:p-6" aria-labelledby="reference-heading">
+      <h2 id="reference-heading" class="canva-text font-bold">Aide-mémoire</h2>
+      <div class="mt-4 grid gap-3 sm:grid-cols-2">
+       <p class="canva-text rounded-xl bg-white/75 p-3 leading-relaxed"><strong>Addition :</strong> terme + terme = somme</p>
+       <p class="canva-text rounded-xl bg-white/75 p-3 leading-relaxed"><strong>Soustraction :</strong> premier terme − deuxième terme = différence</p>
+       <p class="canva-text rounded-xl bg-white/75 p-3 leading-relaxed"><strong>Multiplication :</strong> facteur × facteur = produit</p>
+       <p class="canva-text rounded-xl bg-white/75 p-3 leading-relaxed"><strong>Division :</strong> dividende ÷ diviseur = quotient</p>
+      </div>
+     </aside>
+     <section aria-labelledby="section-one-heading" class="mb-12">
+      <div class="section-heading">
+       <h2 id="section-one-heading" class="canva-text uppercase tracking-[0.15em] font-bold">1. Identifier le rôle d'un nombre</h2>
+      </div>
+      <p class="canva-text mb-5 leading-relaxed">Observe l'opération, puis choisis dans la liste le terme mathématique qui correspond au nombre indiqué.</p>
+      <div id="section-one-list" class="space-y-4"></div>
+     </section>
+     <section aria-labelledby="section-two-heading" class="mb-12">
+      <div class="section-heading">
+       <h2 id="section-two-heading" class="canva-text uppercase tracking-[0.15em] font-bold">2. Compléter avec le terme exact</h2>
+      </div>
+      <p class="canva-text mb-5 leading-relaxed">Écris toi-même le mot mathématique qui convient pour compléter la phrase.</p>
+      <div id="section-two-list" class="space-y-4"></div>
+     </section>
+     <section aria-labelledby="section-three-heading">
+      <div class="section-heading">
+       <h2 id="section-three-heading" class="canva-text uppercase tracking-[0.15em] font-bold">3. Construire une opération</h2>
+      </div>
+      <p class="canva-text mb-5 leading-relaxed">Invente une opération qui respecte la consigne, en écrivant les nombres et le signe (par exemple : 4 + 3 = 7).</p>
+      <div id="section-three-list" class="space-y-4"></div>
+     </section>
+     <section id="completion-message" class="canva-banner mt-10 hidden rounded-2xl border-2 border-green-400 p-6 text-center font-bold shadow-sm" aria-live="polite">Bravo, tu as terminé les 30 exercices ! Clique sur « Nouveaux exercices » pour recommencer.</section>
+    </div>
+   </main>
+   <footer class="canva-footer w-full px-5 py-7">
+    <p class="canva-text mx-auto max-w-[760px] text-center leading-relaxed">Astuce : relis l'aide-mémoire si tu hésites sur un mot. Tu as droit à trois essais par exercice.</p>
+   </footer>
+  </div>
+  <template id="exercise-template">
+   <article class="canva-card exercise-card rounded-2xl p-5 sm:p-6">
+    <div class="flex items-start gap-4">
+     <div class="min-w-0 flex-1">
+      <p class="exercise-number mb-2 font-bold text-indigo-600"></p>
+      <h3 class="exercise-prompt whitespace-pre-line font-sans font-semibold leading-relaxed"></h3>
+     </div>
+     <div class="attempts flex shrink-0 gap-1.5 pt-1" aria-label="Trois essais disponibles">
+      <span class="attempt-dot"></span> <span class="attempt-dot"></span> <span class="attempt-dot"></span>
+     </div>
+    </div>
+    <div class="answer-area mt-5">
+     <label class="canva-text answer-label mb-2 block font-semibold"></label>
+     <div class="flex flex-col gap-3 sm:flex-row">
+      <input class="canva-input answer-control text-input" type="text" inputmode="text" autocomplete="off"> <select class="answer-control role-select hidden" autocomplete="off"> <option value="">Choisir un terme…</option> <option value="terme">un terme</option> <option value="somme">la somme</option> <option value="premier terme">le premier terme</option> <option value="deuxieme terme">le deuxième terme</option> <option value="difference">la différence</option> <option value="facteur">un facteur</option> <option value="produit">le produit</option> <option value="dividende">le dividende</option> <option value="diviseur">le diviseur</option> <option value="quotient">le quotient</option> </select> <button type="button" class="canva-button submit-answer submit-button focus-ring sm:w-auto"></button>
+     </div>
+    </div>
+    <div class="feedback mt-4 hidden" role="status" aria-live="polite"></div>
+   </article>
+  </template>
+  <script>
+    (() => {
+      "use strict";
+
+      const TOTAL_PER_SECTION = 10;
+      const MAX_ATTEMPTS = 3;
+      const TOTAL_EXERCISES = TOTAL_PER_SECTION * 3;
+
+      const roleLabels = {
+        terme: "terme",
+        somme: "somme",
+        "premier terme": "premier terme",
+        "deuxieme terme": "deuxième terme",
+        difference: "différence",
+        facteur: "facteur",
+        produit: "produit",
+        dividende: "dividende",
+        diviseur: "diviseur",
+        quotient: "quotient"
+      };
+
+      const roleExplanations = {
+        terme: "La somme est le résultat d’une addition ; les termes sont les nombres additionnés.",
+        somme: "La somme est le résultat d’une addition.",
+        "premier terme": "Dans une soustraction, le premier terme est le nombre auquel on enlève le deuxième terme.",
+        "deuxieme terme": "Dans une soustraction, le deuxième terme est le nombre que l’on soustrait au premier.",
+        difference: "La différence est le résultat d’une soustraction.",
+        facteur: "Le produit est le résultat d’une multiplication ; les facteurs sont les nombres multipliés.",
+        produit: "Le produit est le résultat d’une multiplication.",
+        dividende: "Dans une division, le dividende est le nombre qui est divisé.",
+        diviseur: "Dans une division, le diviseur est le nombre par lequel on divise.",
+        quotient: "Le quotient est le résultat d’une division."
+      };
+
+      let currentSession = 0;
+      let correctCount = 0;
+      let resolvedCount = 0;
+      let cardSerial = 0;
+
+      // Entier aléatoire entre min et max inclus.
+      function randomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      function normalizeText(value) {
+        return String(value ?? "")
+          .toLocaleLowerCase("fr")
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[’']/g, " ")
+          .replace(/[–—−]/g, "-")
+          .replace(/\b(le|la|les|l|un|une|des|du|de|d)\b/g, " ")
+          .replace(/[.,;!?()[\]{}]/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      function canonicalRole(value) {
+        const normalized = normalizeText(value);
+
+        const aliases = {
+          "terme": "terme",
+          "termes": "terme",
+          "somme": "somme",
+          "premier terme": "premier terme",
+          "1er terme": "premier terme",
+          "1re terme": "premier terme",
+          "deuxieme terme": "deuxieme terme",
+          "2e terme": "deuxieme terme",
+          "2eme terme": "deuxieme terme",
+          "2ème terme": "deuxieme terme",
+          "2de terme": "deuxieme terme",
+          "difference": "difference",
+          "facteur": "facteur",
+          "facteurs": "facteur",
+          "produit": "produit",
+          "dividende": "dividende",
+          "diviseur": "diviseur",
+          "quotient": "quotient"
+        };
+
+        return aliases[normalized] || normalized;
+      }
+
+      function operationData(type, a, b) {
+        if (type === "addition") {
+          return {
+            symbol: "+",
+            result: a + b,
+            roles: ["terme", "terme", "somme"]
+          };
+        }
+
+        if (type === "soustraction") {
+          return {
+            symbol: "−",
+            result: a - b,
+            roles: ["premier terme", "deuxieme terme", "difference"]
+          };
+        }
+
+        if (type === "multiplication") {
+          return {
+            symbol: "·",
+            result: a * b,
+            roles: ["facteur", "facteur", "produit"]
+          };
+        }
+
+        return {
+          symbol: ":",
+          result: a / b,
+          roles: ["dividende", "diviseur", "quotient"]
+        };
+      }
+
+      function buildRoleBank() {
+        const bank = [];
+        const types = ["addition", "soustraction", "multiplication", "division"];
+        let itemCount = 0;
+
+        for (let i = 0; itemCount < 100 && i < 5000; i++) {
+          const type = types[i % 4];
+          let a;
+          let b;
+
+          if (type === "addition") {
+            a = randomInt(5, 50);
+            b = randomInt(2, 36);
+          } else if (type === "soustraction") {
+            b = randomInt(2, 25);
+            a = b + randomInt(3, 47);
+          } else if (type === "multiplication") {
+            a = randomInt(2, 12);
+            b = randomInt(2, 13);
+          } else {
+            b = randomInt(2, 11);
+            const quotient = randomInt(2, 13);
+            a = b * quotient;
+          }
+
+          const operation = operationData(type, a, b);
+
+          // Empêche les questions ambiguës : les trois nombres doivent être différents
+          const values = [a, b, operation.result];
+
+          if (new Set(values).size !== 3) {
+            continue;
+          }
+
+          const targetPosition = Math.floor(i / 4) % 3;
+          const target = values[targetPosition];
+          const role = operation.roles[targetPosition];
+
+          bank.push({
+            id: "role-" + i,
+            kind: "role",
+            inputType: "select",
+            prompt: `Que représente le nombre ${target} dans l’opération suivante ?\n${a} ${operation.symbol} ${b} = ${operation.result}`,
+            answer: role,
+            explanation: `${target} est ${roleLabels[role]}. ${roleExplanations[role]}`,
+            example: `${a} ${operation.symbol} ${b} = ${operation.result}`
+          });
+          itemCount++;
+        }
+
+        return bank;
+      }
+
+      function buildCompletionBank() {
+        const bank = [];
+        const types = ["addition", "soustraction", "multiplication", "division"];
+        let itemCount = 0;
+
+        for (let i = 0; itemCount < 100 && i < 5000; i++) {
+          const type = types[(i + 1) % 4];
+          let a;
+          let b;
+
+          if (type === "addition") {
+            a = randomInt(4, 45);
+            b = randomInt(3, 39);
+          } else if (type === "soustraction") {
+            b = randomInt(2, 23);
+            a = b + randomInt(4, 43);
+          } else if (type === "multiplication") {
+            a = randomInt(2, 11);
+            b = randomInt(2, 12);
+          } else {
+            b = randomInt(2, 10);
+            a = b * randomInt(2, 13);
+          }
+
+          const operation = operationData(type, a, b);
+          const position = Math.floor(i / 4) % 3;
+          const values = [a, b, operation.result];
+          const target = values[position];
+          const role = operation.roles[position];
+
+          // Ensure all three values are distinct (no ambiguous items)
+          if (new Set(values).size !== 3) {
+            continue;
+          }
+
+          {
+            bank.push({
+              id: "complete-" + itemCount,
+              kind: "complete",
+              inputType: "text",
+              prompt: `Complète avec le terme mathématique exact :\nDans ${a} ${operation.symbol} ${b} = ${operation.result}, le nombre ${target} est…`,
+              answer: role,
+              explanation: `La réponse attendue est « ${roleLabels[role]} ». ${roleExplanations[role]}`,
+              example: `${target} joue le rôle de ${roleLabels[role]}.`
+            });
+            itemCount++;
+          }
+        }
+
+        return bank;
+      }
+
+      const constructionPatterns = [
+        {
+          make() {
+            const result = randomInt(7, 30);
+            const left = randomInt(1, result - 1);
+            return {
+              prompt: `Écris une somme de deux termes égale à ${result}.`,
+              constraint: { type: "sum", count: 2, result },
+              example: `${left} + ${result - left} = ${result}`
+            };
+          }
+        },
+        {
+          make() {
+            const factors = [randomInt(2, 5), randomInt(2, 4), randomInt(2, 6)];
+            const result = factors.reduce((sum, value) => sum * value, 1);
+            return {
+              prompt: `Écris un produit de 3 facteurs égal à ${result}.`,
+              constraint: { type: "product", count: 3, result },
+              example: `${factors.join(" × ")} = ${result}`
+            };
+          }
+        },
+        {
+          make() {
+            const second = randomInt(4, 15);
+            const result = randomInt(8, 37);
+            return {
+              prompt: `Écris une différence dont le deuxième terme est ${second}.`,
+              constraint: { type: "difference", second },
+              example: `${result + second} − ${second} = ${result}`
+            };
+          }
+        },
+        {
+          make() {
+            const result = randomInt(3, 14);
+            const divisor = randomInt(2, 10);
+            return {
+              prompt: `Écris un quotient égal à ${result}.`,
+              constraint: { type: "quotient", result },
+              example: `${result * divisor} : ${divisor} = ${result}`
+            };
+          }
+        },
+        {
+          make() {
+            const result = randomInt(12, 50);
+            const second = randomInt(3, 18);
+            return {
+              prompt: `Écris une différence égale à ${result}.`,
+              constraint: { type: "difference", result },
+              example: `${result + second} − ${second} = ${result}`
+            };
+          }
+        },
+        {
+          make() {
+            const divisor = randomInt(3, 12);
+            const quotient = randomInt(2, 12);
+            return {
+              prompt: `Écris un quotient dont le diviseur est ${divisor}.`,
+              constraint: { type: "quotient", divisor },
+              example: `${divisor * quotient} : ${divisor} = ${quotient}`
+            };
+          }
+        },
+        {
+          make() {
+            const lastTwoSum = randomInt(7, 14);
+            const first = randomInt(1, 25);
+            const result = first + lastTwoSum;
+            const second = randomInt(2, lastTwoSum - 2);
+            const third = lastTwoSum - second;
+
+            return {
+              prompt: `Écris une somme de trois termes égale à ${result}, dont la somme des deux derniers termes est ${lastTwoSum}.`,
+              constraint: { type: "sum", count: 3, result, lastTwoSum },
+              example: `${first} + ${second} + ${third} = ${result}`
+            };
+          }
+        }
+      ];
+
+      function buildConstructionBank() {
+        const bank = [];
+        let itemCount = 0;
+
+        for (let i = 0; itemCount < 100 && i < 5000; i++) {
+          const item = constructionPatterns[i % constructionPatterns.length].make();
+
+          bank.push({
+            id: "construction-" + itemCount,
+            kind: "construction",
+            inputType: "text",
+            prompt: item.prompt,
+            constraint: item.constraint,
+            example: item.example
+          });
+          itemCount++;
+        }
+
+        return bank;
+      }
+
+      const roleBank = buildRoleBank();
+      const completionBank = buildCompletionBank();
+      const constructionBank = buildConstructionBank();
+
+      function randomSample(bank, count) {
+        const copy = bank.slice();
+
+        for (let i = copy.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+
+        return copy.slice(0, count);
+      }
+
+      function getOperationType(expected) {
+        if (["terme", "somme", "premier terme", "deuxieme terme", "difference"].includes(expected)) {
+          return expected === "somme" || expected === "terme" || expected === "premier terme" ? "addition" : "soustraction";
+        }
+        if (["facteur", "produit"].includes(expected)) {
+          return "multiplication";
+        }
+        if (["dividende", "diviseur", "quotient"].includes(expected)) {
+          return "division";
+        }
+        return null;
+      }
+
+      function isResultRole(role) {
+        return ["somme", "difference", "produit", "quotient"].includes(role);
+      }
+
+      function parseNaturalOperation(raw) {
+        const input = String(raw ?? "")
+          .trim()
+          .replace(/[–—−]/g, "-")
+          .replace(/[×xX*·.]/g, "*")
+          .replace(/[÷:]/g, "/")
+          .replace(/\s+/g, "");
+
+        const equalParts = input.split("=");
+        if (equalParts.length !== 2 || !equalParts[0] || !equalParts[1]) {
+          return { valid: false, reason: "Écris une opération complète avec le signe = et le résultat, par exemple 4 + 3 = 7." };
+        }
+
+        const expression = equalParts[0];
+        const writtenResult = Number(equalParts[1]);
+
+        if (!Number.isInteger(writtenResult) || writtenResult < 0) {
+          return { valid: false, reason: "Le résultat écrit doit être un nombre naturel." };
+        }
+
+        const operatorMatches = expression.match(/[+*/-]/g) || [];
+        if (!operatorMatches.length) {
+          return { valid: false, reason: "Ajoute un signe d’opération entre les nombres." };
+        }
+
+        const operator = operatorMatches[0];
+        if (!operatorMatches.every(symbol => symbol === operator)) {
+          return { valid: false, reason: "Utilise une seule opération fondamentale dans cette réponse." };
+        }
+
+        const parts = expression.split(operator);
+        if (parts.some(part => part === "" || !/^\d+$/.test(part))) {
+          return { valid: false, reason: "Utilise uniquement des nombres naturels entiers et un signe d’opération." };
+        }
+
+        const numbers = parts.map(Number);
+        let result;
+
+        if (operator === "+") {
+          result = numbers.reduce((sum, number) => sum + number, 0);
+        } else if (operator === "*") {
+          result = numbers.reduce((product, number) => product * number, 1);
+        } else if (operator === "-") {
+          if (numbers.length !== 2) {
+            return { valid: false, reason: "Une différence attend ici exactement deux termes." };
+          }
+          result = numbers[0] - numbers[1];
+        } else {
+          if (numbers.length !== 2 || numbers[1] === 0) {
+            return { valid: false, reason: "Une division attend un dividende et un diviseur naturel non nul." };
+          }
+          result = numbers[0] / numbers[1];
+        }
+
+        if (!Number.isInteger(result) || result < 0) {
+          return { valid: false, reason: "L’opération doit avoir un résultat naturel." };
+        }
+
+        if (writtenResult !== null && writtenResult !== result) {
+          return {
+            valid: false,
+            reason: `Le nombre après le signe = ne correspond pas au résultat réel de ton calcul. Vérifie ton opération.`
+          };
+        }
+
+        return {
+          valid: true,
+          operator,
+          numbers,
+          result
+        };
+      }
+
+      function constructionFeedback(constraint, parsed) {
+        if (!parsed.valid) {
+          return { correct: false, message: parsed.reason };
+        }
+
+        const expectedOperator = {
+          sum: "+",
+          product: "*",
+          difference: "-",
+          quotient: "/"
+        }[constraint.type];
+
+        const vocabulary = {
+          sum: "Une somme est le résultat d’une addition ; les nombres additionnés sont les termes.",
+          product: "Un produit est le résultat d’une multiplication ; les nombres multipliés sont les facteurs.",
+          difference: "Une différence est le résultat d’une soustraction. Le nombre soustrait est le deuxième terme.",
+          quotient: "Un quotient est le résultat d’une division. Le diviseur est le nombre par lequel on divise."
+        }[constraint.type];
+
+        if (parsed.operator !== expectedOperator) {
+          return {
+            correct: false,
+            message: `Le type d’opération ne convient pas. ${vocabulary}`
+          };
+        }
+
+        if (constraint.count && parsed.numbers.length !== constraint.count) {
+          const noun = constraint.type === "product" ? "facteurs" : "termes";
+          return {
+            correct: false,
+            message: `Il faut exactement ${constraint.count} ${noun}. ${vocabulary}`
+          };
+        }
+
+        if (constraint.result !== undefined && parsed.result !== constraint.result) {
+          return {
+            correct: false,
+            message: `Le résultat doit être ${constraint.result}. Ici, le résultat obtenu est ${parsed.result}. ${vocabulary}`
+          };
+        }
+
+        if (constraint.second !== undefined && parsed.numbers[1] !== constraint.second) {
+          return {
+            correct: false,
+            message: `Le deuxième terme doit être ${constraint.second}. Dans une soustraction, il se trouve après le signe −.`
+          };
+        }
+
+        if (constraint.divisor !== undefined && parsed.numbers[1] !== constraint.divisor) {
+          return {
+            correct: false,
+            message: `Le diviseur doit être ${constraint.divisor}. Dans une division, le diviseur est le nombre par lequel on divise.`
+          };
+        }
+
+        if (
+          constraint.lastTwoSum !== undefined &&
+          parsed.numbers[1] + parsed.numbers[2] !== constraint.lastTwoSum
+        ) {
+          return {
+            correct: false,
+            message: `Les deux derniers termes doivent avoir pour somme ${constraint.lastTwoSum}. Leur somme vaut actuellement ${parsed.numbers[1] + parsed.numbers[2]}.`
+          };
+        }
+
+        return {
+          correct: true,
+          message: `L’opération est correcte et toutes les contraintes sont respectées. ${vocabulary}`
+        };
+      }
+
+      function textAnswerFeedback(item, value) {
+        const answer = canonicalRole(value);
+        const expected = canonicalRole(item.answer);
+
+        if (!answer) {
+          return {
+            correct: false,
+            message: "Écris ou sélectionne un terme mathématique avant de valider."
+          };
+        }
+
+        if (answer === expected) {
+          return {
+            correct: true,
+            message: item.explanation
+          };
+        }
+
+        const answerOpType = getOperationType(answer);
+        const expectedOpType = getOperationType(expected);
+        const answerIsResult = isResultRole(answer);
+        const expectedIsResult = isResultRole(expected);
+
+        if (answerOpType && expectedOpType && answerOpType !== expectedOpType) {
+          return {
+            correct: false,
+            message: `Quelle est l'opération ici ? Est-ce une addition, une soustraction, une multiplication ou une division ?`
+          };
+        }
+
+        if (answerOpType === expectedOpType && answerIsResult !== expectedIsResult) {
+          return {
+            correct: false,
+            message: `Le nombre demandé est-il un résultat ou un élément de l'opération ?`
+          };
+        }
+
+        if (answerOpType === expectedOpType) {
+          return {
+            correct: false,
+            message: `C'est la bonne opération. Réfléchis à la position et au rôle exact du nombre demandé dans cette opération.`
+          };
+        }
+
+        // Le mot tapé ne correspond à aucun terme mathématique connu (faute de
+        // frappe, mot inventé...). On encourage à corriger sans jamais révéler
+        // la réponse attendue.
+        return {
+          correct: false,
+          message: `« ${value.trim()} » n'est pas un terme mathématique reconnu. Vérifie l'orthographe, ou aide-toi de l'aide-mémoire en haut de la page.`
+        };
+      }
+
+      function updateProgress() {
+        const scoreCounter = document.getElementById("score-counter");
+        const progressTrack = document.getElementById("progress-track");
+        const progressFill = document.getElementById("progress-fill");
+        const completion = document.getElementById("completion-message");
+
+        scoreCounter.textContent = `${correctCount} / ${TOTAL_EXERCISES}`;
+        progressTrack.setAttribute("aria-valuenow", String(correctCount));
+        progressFill.style.width = `${(correctCount / TOTAL_EXERCISES) * 100}%`;
+
+        if (resolvedCount === TOTAL_EXERCISES) {
+          completion.classList.remove("hidden");
+        } else {
+          completion.classList.add("hidden");
+        }
+      }
+
+      function showFeedback(element, type, message) {
+        element.className = "feedback feedback-box mt-4";
+        element.classList.add(
+          type === "success"
+            ? "feedback-success"
+            : type === "correction"
+              ? "feedback-correction"
+              : "feedback-error"
+        );
+        element.textContent = message;
+      }
+
+      function finishCard(card, input, select, button) {
+        input.disabled = true;
+        select.disabled = true;
+        button.disabled = true;
+      }
+
+      function createExerciseCard(item, sectionNumber, index, sessionId) {
+        const fragment = document.getElementById("exercise-template").content.cloneNode(true);
+        const card = fragment.querySelector(".exercise-card");
+        const number = fragment.querySelector(".exercise-number");
+        const prompt = fragment.querySelector(".exercise-prompt");
+        const label = fragment.querySelector(".answer-label");
+        const input = fragment.querySelector(".text-input");
+        const select = fragment.querySelector(".role-select");
+        const button = fragment.querySelector(".submit-answer");
+        const feedback = fragment.querySelector(".feedback");
+        const dots = Array.from(fragment.querySelectorAll(".attempt-dot"));
+
+        const inputId = `answer-${sessionId}-${cardSerial++}`;
+        input.id = inputId;
+        select.id = inputId + "-select";
+
+        number.textContent = `Exercice ${index + 1}`;
+        prompt.textContent = item.prompt;
+        card.style.animationDelay = `${Math.min(index * 45, 360)}ms`;
+
+        // Texte du bouton et du label, corrigé : dans la page d'origine, ces
+        // éléments étaient à l'intérieur du <template> et ne recevaient donc
+        // jamais leur texte, quel que soit le nombre de cartes générées.
+        button.textContent = "Valider";
+
+        if (item.inputType === "select") {
+          input.classList.add("hidden");
+          select.classList.remove("hidden");
+          label.htmlFor = select.id;
+          label.textContent = "Choisis le terme correspondant";
+        } else {
+          label.htmlFor = input.id;
+          label.textContent = "Ta réponse";
+        }
+
+        let attempts = 0;
+        let finished = false;
+
+        function validate() {
+          if (finished || sessionId !== currentSession) return;
+
+          const value = item.inputType === "select" ? select.value : input.value;
+          const result = item.kind === "construction"
+            ? constructionFeedback(item.constraint, parseNaturalOperation(value))
+            : textAnswerFeedback(item, value);
+
+          if (result.correct) {
+            finished = true;
+            dots[Math.min(attempts, MAX_ATTEMPTS - 1)].classList.add("success");
+            card.classList.add("is-correct", "pop");
+            showFeedback(feedback, "success", `Bravo ! ${result.message}`);
+            finishCard(card, input, select, button);
+            correctCount++;
+            resolvedCount++;
+            updateProgress();
+            return;
+          }
+
+          dots[attempts].classList.add("wrong");
+          attempts++;
+
+          card.classList.remove("shake");
+          void card.offsetWidth;
+          card.classList.add("shake");
+
+          if (attempts >= MAX_ATTEMPTS) {
+            finished = true;
+            card.classList.add("is-revealed");
+
+            const correction = item.kind === "construction"
+              ? `Correction : ${result.message} Exemple valide : ${item.example}`
+              : `Correction : ${item.explanation}`;
+
+            showFeedback(feedback, "correction", correction);
+            finishCard(card, input, select, button);
+            resolvedCount++;
+            updateProgress();
+          } else {
+            const remaining = MAX_ATTEMPTS - attempts;
+            showFeedback(
+              feedback,
+              "error",
+              `${result.message} Il te reste ${remaining} essai${remaining > 1 ? "s" : ""}.`
+            );
+
+            if (item.inputType === "select") {
+              select.focus();
+            } else {
+              input.focus();
+              input.select();
+            }
+          }
+        }
+
+        button.addEventListener("click", validate);
+
+        input.addEventListener("keydown", event => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            validate();
+          }
+        });
+
+        select.addEventListener("keydown", event => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            validate();
+          }
+        });
+
+        return fragment;
+      }
+
+      function renderSection(containerId, items, sectionNumber, sessionId) {
+        const container = document.getElementById(containerId);
+        container.replaceChildren();
+
+        items.forEach((item, index) => {
+          container.appendChild(createExerciseCard(item, sectionNumber, index, sessionId));
+        });
+      }
+
+      function generateSession() {
+        currentSession++;
+        correctCount = 0;
+        resolvedCount = 0;
+        cardSerial = 0;
+
+        renderSection(
+          "section-one-list",
+          randomSample(roleBank, TOTAL_PER_SECTION),
+          1,
+          currentSession
+        );
+
+        renderSection(
+          "section-two-list",
+          randomSample(completionBank, TOTAL_PER_SECTION),
+          2,
+          currentSession
+        );
+
+        renderSection(
+          "section-three-list",
+          randomSample(constructionBank, TOTAL_PER_SECTION),
+          3,
+          currentSession
+        );
+
+        updateProgress();
+      }
+
+      document.getElementById("new-exercises-button").addEventListener("click", () => {
+        generateSession();
+        document.getElementById("progress-heading").scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      });
+
+      generateSession();
+    })();
+  </script>
+ </body>
+</html>
